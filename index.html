@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Витрина подарков</title>
+
+<!-- Шрифт Montserrat — как в оригинальном продукте -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css?family=Montserrat:400,500,600&display=swap&subset=cyrillic,cyrillic-ext" rel="stylesheet" />
+
+<style>
+/* ===========================================================================
+   ВИТРИНА ПОДАРКОВ — прощальная версия (этап 1: вёрстка с заглушками)
+   ---------------------------------------------------------------------------
+   Цвета, тени и шрифты взяты из оригинальных стилей продукта, чтобы интерфейс
+   выглядел «как настоящий».
+
+   КАК РЕДАКТИРОВАТЬ ПОЗЖЕ:
+   - Фото сотрудников   → заменить иконку-заглушку внутри .avatar (см. ниже)
+   - Должность / имя    → текст в .card__role и .card__name
+   - Текст пожелания    → атрибут data-message у каждой карточки .card
+   - Добавить/убрать сотрудника → скопировать или удалить блок <button class="card">
+   =========================================================================== */
+
+:root{
+  --ink:        #3a475d;   /* основной тёмный текст */
+  --muted:      #9299a2;   /* серый вспомогательный текст */
+  --line:       #e7eaef;   /* границы карточек */
+  --bg:         #eef1f6;   /* фон страницы */
+  --accent:     #16b3a4;   /* бирюзовый — таймер */
+  --purple:     #7b61ff;   /* кнопка «получить подарок» */
+  --purple-dk:  #6a4ff0;
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+
+html,body{ margin:0; padding:0; }
+
+body{
+  min-height:100%;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:Montserrat, Arial, sans-serif;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+
+/* ---------- Шапка ------------------------------------------------------- */
+.header{
+  text-align:center;
+  padding:22px 16px 10px;
+}
+
+/* Чёрный логотип-«пилюля» (как «витрина подарков») */
+.logo{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  background:#161616;
+  color:#fff;
+  font-weight:600;
+  font-size:14px;
+  line-height:1;
+  padding:9px 16px;
+  border-radius:6px;
+  letter-spacing:.2px;
+}
+.logo__icon{ font-size:15px; }
+
+/* логотип компании (исходник белый → делаем чёрным фильтром) */
+.brand-logo{
+  display:block;
+  height:30px;
+  width:auto;
+  margin:0 auto 18px;
+  filter:invert(1);
+}
+
+.header__text{
+  margin:18px 0 0;
+  font-size:20px;
+  font-weight:500;
+  color:var(--ink);
+}
+
+/* ---------- Раскладка: таймер + список --------------------------------- */
+.layout{
+  max-width:1180px;
+  margin:0 auto;
+  padding:10px 16px 80px;
+  position:relative;
+}
+
+/* Таймер на десктопе — слева, «плавающий» */
+.timer{
+  display:inline-flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  width:96px;
+  height:96px;
+  background:#fff;
+  border-radius:4px;
+  box-shadow:0 2px 11px rgba(0,0,0,.07);
+}
+.timer__ring{
+  width:64px;
+  height:64px;
+  border-radius:50%;
+  border:3px solid var(--accent);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:30px;
+  font-weight:500;
+  color:var(--ink);
+}
+
+.timer--desktop{
+  position:absolute;
+  left:0;
+  top:24px;
+}
+
+/* плавная пульсация знака бесконечности */
+.inf{
+  display:inline-block;
+  animation:infpulse 2.8s ease-in-out infinite;
+}
+@keyframes infpulse{
+  0%, 100%{ transform:scale(1);    opacity:.85; }
+  50%     { transform:scale(1.18); opacity:1;   }
+}
+
+/* ---------- Список «офферов» (сотрудников) ----------------------------- */
+.offers{
+  max-width:760px;
+  margin:0 auto;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+
+.card{
+  /* это кнопка, поэтому сбрасываем стили кнопки */
+  appearance:none;
+  text-align:left;
+  width:100%;
+  cursor:pointer;
+  font-family:inherit;
+  color:var(--ink);
+
+  display:flex;
+  align-items:center;
+  gap:20px;
+  padding:15px 22px;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:2px;
+  box-shadow:0 2px 11px rgba(0,0,0,.07);
+  transition:box-shadow .3s ease, transform .15s ease;
+}
+.card:hover{ box-shadow:0 2px 26px rgba(186,191,198,.49); }
+.card:active{ transform:scale(.997); }
+
+/* Аватар-заглушка (вместо логотипа бренда) */
+.avatar{
+  flex:0 0 auto;
+  width:64px;
+  height:64px;
+  border-radius:50%;
+  background:#eef1f6;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+}
+.avatar svg{ width:38px; height:38px; }
+.avatar img{ width:100%; height:100%; object-fit:cover; border-radius:50%; display:block; object-position:50% 50%; }
+.modal__avatar{ overflow:hidden; }
+.modal__avatar img{ width:100%; height:100%; object-fit:cover; border-radius:50%; display:block; object-position:50% 50%; }
+/* показать чуть больше верхней части фото (чтобы не срезалась голова) */
+.avatar img.av-lower{ object-position:50% 15%; }
+/* точная подгонка кадра отдельных фото (zoom + сдвиг) */
+.avatar img.fit-dasha{  object-position:50% 0%; transform-origin:50% 0%; transform:translateX(4%) scale(1.1); }
+.avatar img.fit-muzyka{ transform:translate(-6%, 7%) scale(1.16); }
+.avatar img.fit-marina{ transform:translate(-7%, 12%) scale(1.45); }
+
+/* лёгкое разнообразие фонов аватаров */
+.avatar--a{ background:#e9f6f4; }
+.avatar--b{ background:#eef0fb; }
+.avatar--c{ background:#fdeef0; }
+.avatar--d{ background:#fff4e6; }
+.avatar--e{ background:#eaf3fb; }
+.avatar--f{ background:#f1f0f7; }
+
+.card__body{
+  flex:1 1 auto;
+  min-width:0;
+}
+.card__name{
+  display:block;
+  font-size:18px;
+  font-weight:500;
+  color:var(--ink);
+  margin:0 0 4px;
+  line-height:1.2;
+}
+.card__role{
+  display:block;
+  font-size:11px;
+  font-weight:500;
+  color:var(--muted);
+  margin:0;
+  line-height:1.2;
+}
+
+/* На десктопе имя и должность выравниваем по центру (на мобиле — по левому краю) */
+@media (min-width:769px){
+  .card__body{ text-align:center; }
+}
+
+/* Подарок справа + стрелка */
+.card__gift{
+  flex:0 0 auto;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.card__giftIcon{ font-size:34px; line-height:1; }
+.card__chevron{
+  font-size:30px;
+  color:#444;
+  line-height:1;
+}
+
+/* «Осталось мало» — опциональная подсветка (как в продукте).
+   Чтобы выделить карточку, добавьте класс card--hot к нужному блоку. */
+.card--hot{ border:2px solid #e0394b; position:relative; }
+.card--hot .card__hotLabel{ display:flex; }
+.card__hotLabel{
+  display:none;
+  align-items:center;
+  gap:5px;
+  position:absolute;
+  top:-11px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#fff;
+  padding:0 8px;
+  color:#e0394b;
+  font-size:11px;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:.5px;
+  white-space:nowrap;
+}
+
+/* ---------- Таймер на мобиле (внизу) ----------------------------------- */
+.timer--mobile{
+  display:none;
+  text-align:center;
+  font-size:34px;
+  font-weight:600;
+  color:var(--accent);
+  letter-spacing:2px;
+  padding:18px 0 6px;
+}
+
+/* ---------- Cookie-бар -------------------------------------------------- */
+.cookiebar{
+  position:fixed;
+  left:0; right:0; bottom:0;
+  background:#fff;
+  border-top:1px solid var(--line);
+  padding:12px 16px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:14px;
+  font-size:13px;
+  color:var(--muted);
+  z-index:30;
+}
+.cookiebar a{ color:#7aa7d6; }
+.cookiebar__ok{
+  appearance:none;
+  border:none;
+  background:none;
+  color:var(--ink);
+  font-weight:600;
+  font-family:inherit;
+  font-size:14px;
+  cursor:pointer;
+}
+
+/* ===========================================================================
+   ЭКРАН-ЗАСТАВКА — колесо фортуны (показывается перед входом на страницу)
+   =========================================================================== */
+.wheel-screen{
+  position:fixed;
+  inset:0;
+  z-index:100;
+  background:#232323;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:40px;
+  padding:24px;
+  transition:opacity .5s ease;
+}
+.wheel-screen.is-hidden{ opacity:0; pointer-events:none; }
+
+.wheel-wrap{
+  position:relative;
+  width:clamp(240px, 78vw, 320px);
+  aspect-ratio:1 / 1;
+}
+
+/* сам диск с цветными секторами */
+.wheel{
+  position:absolute;
+  inset:0;
+  border-radius:50%;
+  border:8px solid #16524a;
+  box-shadow:0 0 0 4px #1c6357, 0 10px 30px rgba(0,0,0,.45);
+  background:conic-gradient(
+    #2a9d83 0deg 45deg,
+    #18705d 45deg 90deg,
+    #2a9d83 90deg 135deg,
+    #18705d 135deg 180deg,
+    #2a9d83 180deg 225deg,
+    #18705d 225deg 270deg,
+    #2a9d83 270deg 315deg,
+    #18705d 315deg 360deg
+  );
+}
+.wheel.is-spinning{
+  animation:wheelspin 5s cubic-bezier(.16,.84,.30,1) forwards;
+}
+@keyframes wheelspin{
+  from{ transform:rotate(0deg); }
+  to  { transform:rotate(2137.5deg); }  /* ~6 оборотов и остановка ровно на «12» */
+}
+
+/* цифры/символы на секторах */
+.wheel__label{
+  position:absolute;
+  inset:0;
+  display:flex;
+  justify-content:center;
+  transform:rotate(var(--a));
+  pointer-events:none;
+}
+.wheel__label span{
+  margin-top:22px;
+  color:#fff;
+  font-size:22px;
+  font-weight:600;
+}
+
+/* оранжевая «кнопка» в центре */
+.wheel__hub{
+  position:absolute;
+  top:50%; left:50%;
+  width:20%; height:20%;
+  transform:translate(-50%,-50%);
+  border-radius:50%;
+  background:radial-gradient(circle at 35% 32%, #ffd596, #f0a64e);
+  border:4px solid #2a9d83;
+  box-shadow:0 2px 5px rgba(0,0,0,.35);
+  z-index:2;
+}
+
+/* указатель справа, смотрит влево */
+.wheel__pointer{
+  position:absolute;
+  top:50%; right:-16px;
+  transform:translateY(-50%);
+  width:0; height:0;
+  border-top:15px solid transparent;
+  border-bottom:15px solid transparent;
+  border-right:24px solid #f0a64e;
+  filter:drop-shadow(0 1px 2px rgba(0,0,0,.4));
+  z-index:3;
+}
+
+/* серый блок со статусом + кнопкой */
+.wheel__box{
+  width:100%;
+  max-width:clamp(260px, 80vw, 360px);
+  background:#d9d9d9;
+  border-radius:14px;
+  padding:34px 30px;
+  text-align:center;
+}
+.wheel__box p{
+  margin:0;
+  color:#232323;
+  font-size:18px;
+  font-weight:600;
+  line-height:1.45;
+}
+.wheel__cta{
+  margin-top:22px;
+  appearance:none;
+  border:none;
+  cursor:pointer;
+  background:var(--purple);
+  color:#fff;
+  font-family:inherit;
+  font-size:15px;
+  font-weight:600;
+  padding:15px 30px;
+  border-radius:6px;
+  transition:background .2s ease;
+}
+.wheel__cta:hover{ background:var(--purple-dk); }
+.wheel__cta[hidden]{ display:none; }
+
+/* ===========================================================================
+   МОДАЛЬНОЕ ОКНО — карточка оффера (пожелание сотрудника)
+   =========================================================================== */
+.modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(31,31,31,.56);
+  z-index:50;
+  overflow-y:auto;
+  padding:30px 14px;
+}
+.modal.is-open{ display:block; }
+
+.modal__dialog{
+  position:relative;
+  width:100%;
+  max-width:560px;
+  margin:0 auto;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:20px;
+  box-shadow:0 2px 26px rgba(56,58,60,.49);
+  padding:40px 44px 44px;
+}
+
+.modal__close{
+  position:absolute;
+  top:16px; right:18px;
+  width:28px; height:28px;
+  appearance:none;
+  border:none;
+  background:none;
+  cursor:pointer;
+  font-size:24px;
+  line-height:1;
+  color:#9299a2;
+}
+.modal__close:hover{ color:var(--ink); }
+
+/* верх модалки: аватар слева + подарок справа */
+.modal__top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin:0 0 22px;
+}
+.modal__avatar{
+  width:72px; height:72px;
+  border-radius:50%;
+  background:#eef1f6;
+  display:flex; align-items:center; justify-content:center;
+}
+.modal__avatar svg{ width:42px; height:42px; }
+.modal__gift{ font-size:46px; line-height:1; }
+
+.modal__name{
+  font-size:24px;
+  font-weight:600;
+  color:var(--ink);
+  margin:0 0 4px;
+  line-height:1.25;
+}
+.modal__role{
+  font-size:13px;
+  font-weight:500;
+  color:var(--muted);
+  margin:0 0 20px;
+}
+
+.modal__divider{
+  border:none;
+  border-top:1px dashed #cdd4de;
+  margin:0 0 22px;
+}
+
+.modal__messageLabel{
+  font-size:15px;
+  font-weight:500;
+  color:var(--ink);
+  margin:0 0 14px;
+}
+.modal__message{
+  font-size:16px;
+  line-height:1.7;
+  color:var(--ink);
+  margin:0 0 28px;
+  white-space:pre-line;
+}
+
+.modal__btn{
+  display:block;
+  width:100%;
+  appearance:none;
+  border:none;
+  cursor:pointer;
+  background:var(--purple);
+  color:#fff;
+  font-family:inherit;
+  font-size:15px;
+  font-weight:600;
+  padding:18px;
+  border-radius:2px;
+  transition:background .2s ease;
+}
+.modal__btn:hover{ background:var(--purple-dk); }
+
+/* ===========================================================================
+   АДАПТИВ
+   =========================================================================== */
+@media (max-width:768px){
+  .header__text{ font-size:15px; padding:0 8px; }
+
+  .timer--desktop{ display:none; }
+  .timer--mobile{ display:block; }
+
+  .layout{ padding:10px 12px 120px; }
+  .offers{ gap:10px; }
+
+  .card{ gap:14px; padding:12px 14px; }
+  .avatar{ width:48px; height:48px; }
+  .avatar svg{ width:28px; height:28px; }
+  .card__name{ font-size:15px; }
+  .card__role{ font-size:11px; }
+  .card__giftIcon{ font-size:26px; }
+  .card__chevron{ display:none; }
+
+  .modal__dialog{ padding:32px 18px; }
+  .modal__name{ font-size:20px; }
+}
+</style>
+</head>
+
+<body>
+
+  <!-- ====================== ЭКРАН-ЗАСТАВКА: КОЛЕСО ФОРТУНЫ ====================== -->
+  <div class="wheel-screen" id="wheelScreen">
+    <div class="wheel-wrap">
+      <div class="wheel" id="wheel">
+        <span class="wheel__label" style="--a:22.5deg"><span>5</span></span>
+        <span class="wheel__label" style="--a:67.5deg"><span>136</span></span>
+        <span class="wheel__label" style="--a:112.5deg"><span>12</span></span>
+        <span class="wheel__label" style="--a:157.5deg"><span>89</span></span>
+        <span class="wheel__label" style="--a:202.5deg"><span>7</span></span>
+        <span class="wheel__label" style="--a:247.5deg"><span>40</span></span>
+        <span class="wheel__label" style="--a:292.5deg"><span>10</span></span>
+        <span class="wheel__label" style="--a:337.5deg"><span>23</span></span>
+      </div>
+      <div class="wheel__hub"></div>
+      <div class="wheel__pointer"></div>
+    </div>
+
+    <div class="wheel__box">
+      <p id="wheelStatus">Определяем, сколько пожеланий тебе доступно…</p>
+      <button class="wheel__cta" id="wheelCta" hidden>Открыть пожелания</button>
+    </div>
+  </div>
+
+  <!-- ====================== ШАПКА ====================== -->
+  <header class="header">
+    <img class="brand-logo" src="img/logo.png" alt="Логотип компании">
+    <p class="header__text">Выбери неограниченное количество пожеланий. У тебя есть ∞ минут</p>
+  </header>
+
+  <!-- ====================== ОСНОВНАЯ ЧАСТЬ ====================== -->
+  <main class="layout">
+
+    <!-- Таймер (десктоп) -->
+    <div class="timer timer--desktop">
+      <div class="timer__ring"><span class="inf">∞</span></div>
+    </div>
+
+    <!-- СПИСОК СОТРУДНИКОВ -------------------------------------------------
+         Каждая карточка = один сотрудник.
+         data-message = текст пожелания (пока заглушка).
+         Чтобы добавить человека — скопируйте один блок <button class="card"> -->
+    <div class="offers">
+
+      <!-- Андрей Резцов -->
+      <button class="card"
+              data-role="Должность"
+              data-name="Андрей Резцов"
+              data-img="img/andrey-reztsov.jpg"
+              data-message="Текст пожелания будет добавлен позже…">
+        <span class="avatar"><img src="img/andrey-reztsov.jpg" alt="Андрей Резцов"></span>
+        <span class="card__body">
+          <span class="card__name">Андрей Резцов</span>
+          <span class="card__role">Должность</span>
+        </span>
+        <span class="card__gift">
+          <span class="card__giftIcon">🎁</span>
+          <span class="card__chevron">❯</span>
+        </span>
+      </button>
+
+      <!-- Даша Гуща -->
+      <button class="card"
+              data-role="Должность"
+              data-name="Даша Гуща"
+              data-img="img/dasha-gushcha.jpg"
+              data-pos="50% 0%"
+              data-origin="50% 0%"
+              data-transform="translateX(4%) scale(1.1)"
+              data-message="Текст пожелания будет добавлен позже…">
+        <span class="avatar"><img class="fit-dasha" src="img/dasha-gushcha.jpg" alt="Даша Гуща"></span>
+        <span class="card__body">
+          <span class="card__name">Даша Гуща</span>
+          <span class="card__role">Должность</span>
+        </span>
+        <span class="card__gift">
+          <span class="card__giftIcon">🎁</span>
+          <span class="card__chevron">❯</span>
+        </span>
+      </button>
+
+      <!-- Дима Дмитриев -->
+      <button class="card"
+              data-role="Должность"
+              data-name="Дима Дмитриев"
+              data-img="img/dima-dmitriev.jpg"
+              data-message="Текст пожелания будет добавлен позже…">
+        <span class="avatar"><img src="img/dima-dmitriev.jpg" alt="Дима Дмитриев"></span>
+        <span class="card__body">
+          <span class="card__name">Дима Дмитриев</span>
+          <span class="card__role">Должность</span>
+        </span>
+        <span class="card__gift">
+          <span class="card__giftIcon">🎁</span>
+          <span class="card__chevron">❯</span>
+        </span>
+      </button>
+
+      <!-- Дима Зайцев -->
+      <button class="card"
+              data-role="Должность"
+              data-name="Дима Зайцев"
+              data-img="img/dima-zaytsev.jpg"
+              data-message="Текст пожелания будет добавлен позже…">
+        <span class="avatar"><img src="img/dima-zaytsev.jpg" alt="Дима Зайцев"></span>
+        <span class="card__body">
+          <span class="card__name">Дима Зайцев</span>
+          <span class="card__role">Должность</span>
+        </span>
+        <span class="card__gift">
+          <span class="card__giftIcon">🎁</span>
+          <span class="card__chevron">❯</span>
+        </span>
+      </button>
+
+      <!-- Дима Музыка -->
+      <button class="card"
+              data-role="Должность"
+              data-name="Дима Музыка"
+              data-img="img/dima-muzyka.jpg"
+              data-transform="translate(-6%, 7%) scale(1.16)"
+              data-message="Текст пожелания будет добавлен позже…">
+        <span class="avatar"><img class="fit-muzyka" src="img/dima-muzyka.jpg" alt="Дима Музыка"></span>
+        <span class="card__body">
+          <span class="card__name">Дима Музыка</span>
+          <span class="card__role">Должность</span>
+        </span>
+        <span class="card__gift">
+          <span class="card__giftIcon">🎁</span>
+          <span class="card__chevron">❯</span>
+        </span>
+      </button>
+
+      <!-- Женя Барашин -->
+      <button class="card"
+              data-role="Должность"
+              data-name="Женя Барашин"
+              data-img="img/zhenya-barashin.jpg"
+              data-pos="50% 15%"
+              data-message="Текст пожелания будет добавлен позже…">
+        <span class="avatar"><img class="av-lower" src="img/zhenya-barashin.jpg" alt="Женя Барашин"></span>
+        <span class="card__body">
+          <span class="card__name">Женя Барашин</span>
+          <span class="card__role">Должность</span>
+        </span>
+        <span class="card__gift">
+          <span class="card__giftIcon">🎁</span>
+          <span class="card__chevron">❯</span>
+        </span>
+      </button>
+
+      <!-- Илья Бурханов -->
+      <button class="card"
+              data-role="Должность"
+              data-name="Илья Бурханов"
+              data-img="img/ilya-burkhanov.jpg"
+              data-message="Текст пожелания будет добавлен позже…">
+        <span class="avatar"><img src="img/ilya-burkhanov.jpg" alt="Илья Бурханов"></span>
+        <span class="card__body">
+          <span class="card__name">Илья Бурханов</span>
+          <span class="card__role">Должность</span>
+        </span>
+        <span class="card__gift">
+          <span class="card__giftIcon">🎁</span>
+          <span class="card__chevron">❯</span>
+        </span>
+      </button>
+
+      <!-- Никита Тенизбаев -->
+      <button class="card"
+              data-role="Должность"
+              data-name="Никита Тенизбаев"
+              data-img="img/nikita-tenizbaev.jpg"
+              data-message="Текст пожелания будет добавлен позже…">
+        <span class="avatar"><img src="img/nikita-tenizbaev.jpg" alt="Никита Тенизбаев"></span>
+        <span class="card__body">
+          <span class="card__name">Никита Тенизбаев</span>
+          <span class="card__role">Должность</span>
+        </span>
+        <span class="card__gift">
+          <span class="card__giftIcon">🎁</span>
+          <span class="card__chevron">❯</span>
+        </span>
+      </button>
+
+      <!-- Рамиль Зайнуллин -->
+      <button class="card"
+              data-role="Должность"
+              data-name="Рамиль Зайнуллин"
+              data-img="img/ramil-zaynullin.jpg"
+              data-message="Текст пожелания будет добавлен позже…">
+        <span class="avatar"><img src="img/ramil-zaynullin.jpg" alt="Рамиль Зайнуллин"></span>
+        <span class="card__body">
+          <span class="card__name">Рамиль Зайнуллин</span>
+          <span class="card__role">Должность</span>
+        </span>
+        <span class="card__gift">
+          <span class="card__giftIcon">🎁</span>
+          <span class="card__chevron">❯</span>
+        </span>
+      </button>
+
+      <!-- Саша Бабченко -->
+      <button class="card"
+              data-role="Должность"
+              data-name="Саша Бабченко"
+              data-img="img/sasha-babchenko.jpg"
+              data-message="Текст пожелания будет добавлен позже…">
+        <span class="avatar"><img src="img/sasha-babchenko.jpg" alt="Саша Бабченко"></span>
+        <span class="card__body">
+          <span class="card__name">Саша Бабченко</span>
+          <span class="card__role">Должность</span>
+        </span>
+        <span class="card__gift">
+          <span class="card__giftIcon">🎁</span>
+          <span class="card__chevron">❯</span>
+        </span>
+      </button>
+
+      <!-- Марина Трофимова -->
+      <button class="card"
+              data-role="Должность"
+              data-name="Марина Трофимова"
+              data-img="img/marina-trofimova.jpg"
+              data-transform="translate(-7%, 12%) scale(1.45)"
+              data-message="Текст пожелания будет добавлен позже…">
+        <span class="avatar"><img class="fit-marina" src="img/marina-trofimova.jpg" alt="Марина Трофимова"></span>
+        <span class="card__body">
+          <span class="card__name">Марина Трофимова</span>
+          <span class="card__role">Должность</span>
+        </span>
+        <span class="card__gift">
+          <span class="card__giftIcon">🎁</span>
+          <span class="card__chevron">❯</span>
+        </span>
+      </button>
+
+    </div><!-- /.offers -->
+
+    <!-- Таймер (мобайл) -->
+    <div class="timer--mobile"><span class="inf">∞</span></div>
+
+  </main>
+
+  <!-- ====================== МОДАЛКА ====================== -->
+  <div class="modal" id="modal" aria-hidden="true">
+    <div class="modal__dialog" role="dialog" aria-modal="true">
+      <button class="modal__close" id="modalClose" aria-label="Закрыть">×</button>
+
+      <div class="modal__top">
+        <span class="modal__avatar"><img id="modalAvatar" src="" alt=""></span>
+        <span class="modal__gift">🎁</span>
+      </div>
+
+      <h2 class="modal__name" id="modalName">Имя сотрудника</h2>
+      <p class="modal__role" id="modalRole">Должность</p>
+
+      <hr class="modal__divider" />
+
+      <p class="modal__message" id="modalMessage">Текст пожелания будет добавлен позже…</p>
+
+      <button class="modal__btn" id="modalClose2">До встречи!</button>
+    </div>
+  </div>
+
+  <!-- ====================== СКРИПТ ====================== -->
+  <script>
+    (function () {
+      /* -------- Колесо фортуны (заставка) -------- */
+      var wheelScreen = document.getElementById('wheelScreen');
+      var wheel       = document.getElementById('wheel');
+      var wheelStatus = document.getElementById('wheelStatus');
+      var wheelCta    = document.getElementById('wheelCta');
+
+      // блокируем прокрутку, пока показана заставка
+      document.body.style.overflow = 'hidden';
+
+      // запускаем вращение
+      wheel.classList.add('is-spinning');
+
+      // через 5 секунд (длительность вращения) показываем результат и кнопку
+      setTimeout(function () {
+        wheelStatus.textContent = 'Тебе доступно 12 пожеланий!';
+        wheelCta.hidden = false;
+      }, 5000);
+
+      // переход на страницу по кнопке
+      wheelCta.addEventListener('click', function () {
+        wheelScreen.classList.add('is-hidden');
+        document.body.style.overflow = '';
+        setTimeout(function () { wheelScreen.style.display = 'none'; }, 500);
+      });
+
+      /* -------- Карточки и модалка -------- */
+      var modal       = document.getElementById('modal');
+      var modalRole   = document.getElementById('modalRole');
+      var modalName   = document.getElementById('modalName');
+      var modalMsg    = document.getElementById('modalMessage');
+      var modalAvatar = document.getElementById('modalAvatar');
+
+      // Заглушка-силуэт (если у сотрудника пока нет фото)
+      var FALLBACK_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' fill='%23eef1f6'/%3E%3Cpath fill='%23b9c2cf' d='M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 2c-4.42 0-8 2.69-8 6v2h16v-2c0-3.31-3.58-6-8-6Z'/%3E%3C/svg%3E";
+
+      // Открыть модалку с данными нажатой карточки
+      function openCard(card) {
+        modalRole.textContent = card.getAttribute('data-role') || '';
+        modalName.textContent = card.getAttribute('data-name') || '';
+        modalMsg.textContent  = card.getAttribute('data-message') || '';
+        modalAvatar.src       = card.getAttribute('data-img') || FALLBACK_AVATAR;
+        modalAvatar.alt       = card.getAttribute('data-name') || '';
+        modalAvatar.style.objectPosition = card.getAttribute('data-pos') || '50% 50%';
+        modalAvatar.style.transformOrigin = card.getAttribute('data-origin') || '50% 50%';
+        modalAvatar.style.transform      = card.getAttribute('data-transform') || 'none';
+        modal.classList.add('is-open');
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeCard() {
+        modal.classList.remove('is-open');
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+      }
+
+      // Навешиваем обработчик на каждую карточку
+      var cards = document.querySelectorAll('.card');
+      for (var i = 0; i < cards.length; i++) {
+        cards[i].addEventListener('click', function () { openCard(this); });
+      }
+
+      // Закрытие модалки
+      document.getElementById('modalClose').addEventListener('click', closeCard);
+      document.getElementById('modalClose2').addEventListener('click', closeCard);
+      modal.addEventListener('click', function (e) {
+        if (e.target === modal) closeCard();           // клик по тёмному фону
+      });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') closeCard();           // Esc
+      });
+    })();
+  </script>
+
+</body>
+</html>
